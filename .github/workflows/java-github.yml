@@ -1,0 +1,28 @@
+name: First workflow
+
+on:
+  push:
+    branches: [ "development" ]
+  pull_request:
+    branches: [ "main" ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.14.1
+        with:
+          java-version: '17'
+          distribution: 'microsoft'
+      - run: |
+          mvn --batch-mode --update-snapshots verify
+          mkdir staging && cp target/.*jar staging
+      - name: Upload Artifacts
+        uses: actions/upload-artifacts@v4.6.2
+        with:
+          name: Java Jar file
+          path : staging
+          error: Fail the action with an error message
+          retention-days: 7
